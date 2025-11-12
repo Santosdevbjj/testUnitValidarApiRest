@@ -371,6 +371,20 @@ HTTP/1.1 204 No Content
 
 
 
+**Como Importar no Postman**
+
+1. Abra o Postman.  
+2. Clique em Import (canto superior esquerdo).  
+3. Selecione o arquivo Beerstock.postman_collection.json.  
+4. A coleção aparecerá na sua sidebar com o nome Beerstock API.  
+5. Agora você pode executar cada requisição diretamente e validar os endpoints.
+
+---
+
+ Com isso, você tem uma coleção pronta para rodar todos os testes da API sem precisar configurar manualmente cada requisição.  
+
+---
+
 
 
 
