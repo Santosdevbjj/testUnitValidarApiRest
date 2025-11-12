@@ -432,5 +432,27 @@ HTTP/1.1 204 No Content
 
 ---
 
+**Postman Collection + Environment Integrado**
+
+
+**Como Usar**
+
+1. Salve o arquivo como Beerstock.postman_collection.json.  
+2. Abra o Postman.  
+3. Clique em Import e selecione o arquivo.  
+4. A coleção aparecerá com o nome Beerstock API.  
+5. As variáveis já estão embutidas, então você pode rodar os endpoints diretamente usando:  
+   - {{baseUrl}}/beers  
+   - {{baseUrl}}/beers/{{beerName}}  
+   - {{baseUrl}}/beers/{{beerId}}
+
+---
+
+ Agora você tem um único arquivo JSON que já traz a coleção e o ambiente configurado.  
+
+
+
+---
+
 
 
