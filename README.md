@@ -369,6 +369,7 @@ HTTP/1.1 204 No Content
 
 ---
 
+**Postman Collection (JSON Exportável)**
 
 
 **Como Importar no Postman**
@@ -385,7 +386,51 @@ HTTP/1.1 204 No Content
 
 ---
 
+**Postman Environment (JSON Exportável)**
 
+
+**Como Importar no Postman**
+
+1. Abra o Postman.  
+2. Clique em Import (canto superior esquerdo).  
+3. Selecione o arquivo Beerstock.postman_environment.json.  
+4. Ative o ambiente Beerstock Environment no canto superior direito.  
+5. Agora todas as requisições da coleção podem usar variáveis como:  
+   - {{baseUrl}}/beers  
+   - {{baseUrl}}/beers/{{beerName}}  
+   - {{baseUrl}}/beers/{{beerId}}
+
+---
+
+🔹 **Exemplos com Variáveis**
+
+- Criar cerveja:
+  `
+  POST {{baseUrl}}/beers
+  `
+
+- Listar cervejas:
+  `
+  GET {{baseUrl}}/beers
+  `
+
+- Buscar por nome:
+  `
+  GET {{baseUrl}}/beers/{{beerName}}
+  `
+
+- Excluir por ID:
+  `
+  DELETE {{baseUrl}}/beers/{{beerId}}
+  `
+
+---
+
+   Com esse ambiente configurado, você pode trocar o baseUrl (por exemplo, para um servidor remoto ou porta diferente) sem precisar alterar cada requisição manualmente.  
+
+
+
+---
 
 
 
