@@ -460,15 +460,18 @@ HTTP/1.1 204 No Content
 
 ---
 
- Agora você tem um único arquivo JSON que já traz a coleção e o ambiente configurado.  
-
-
-
----
+ 
 
 **Autor:**
 Sergio Santos 
 
 ---
+
+**Contato:**
+
+[![Portfólio Sérgio Santos](https://img.shields.io/badge/Portfólio-Sérgio_Santos-111827?style=for-the-badge&logo=githubpages&logoColor=00eaff)](https://santosdevbjj.github.io/portfolio/)
+[![LinkedIn Sérgio Santos](https://img.shields.io/badge/LinkedIn-Sérgio_Santos-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/santossergioluiz) 
+
+
 
 
