@@ -1,479 +1,229 @@
-### Desenvolvimento de Testes Unitários para Validar uma API REST de Gerenciamento Estoques de Cerveja
+# 🍺 Beerstock API — Testes Unitários com Spring Boot
 
 ![bradescoQA001](https://github.com/user-attachments/assets/29575c32-58cd-4469-bc0e-10da93f623b5)
 
-
-**Bootcamp PcD Tech Bradesco - Java & QA Developer**
-
+**Bootcamp PcD Tech Bradesco — Java & QA Developer**
 
 ---
 
+## 1. Problema de Negócio
 
-**DESCRIÇÃO:**
+APIs REST em produção sem cobertura de testes representam um risco real para qualquer organização. Uma falha silenciosa na lógica de estoque — como permitir que a quantidade de cerveja ultrapasse o limite máximo configurado, ou registrar uma cerveja já existente — pode gerar inconsistências operacionais difíceis de rastrear.
 
-Neste Labs você irá aprender a testar, unitariamente, uma API REST para o gerenciamento de estoques de cerveja.
+O desafio técnico aqui é claro: **como garantir que cada endpoint e cada regra de negócio da API se comportem exatamente como esperado, antes que qualquer mudança chegue ao ambiente de produção?**
 
-Vamos construir testes unitários para validar o nosso sistema de gerenciamento de estoques de cerveja desenvolvido em Spring Boot, e também apresentar os principais conceitos e vantagens de criar testes unitários com JUnit e Mockito.
-
-Além disso, vamos também mostrar como desenvolver funcionalidades da nossa API através da prática do TDD.
-
----
-
-
-**Beerstock API – Testes Unitários com Spring Boot**
-
-Este projeto implementa uma API REST para gerenciamento de estoques de cerveja, desenvolvida em Spring Boot e validada com testes unitários utilizando JUnit 5, Mockito e Hamcrest.  
-O objetivo é demonstrar boas práticas de TDD (Test-Driven Development) e reforçar a importância dos testes unitários no ciclo de desenvolvimento.
+A resposta está na construção de uma suíte robusta de testes unitários, desenvolvida com a prática de TDD (Test-Driven Development).
 
 ---
 
-📂 **Estrutura de Pastas e Arquivos**
+## 2. Contexto
 
-<img width="880" height="1486" alt="Screenshot_20251112-172345" src="https://github.com/user-attachments/assets/9ff0ab05-ead8-4d4a-8243-4679fd7f4d65" />
+Este projeto foi desenvolvido durante o **Bootcamp PcD Tech Bradesco — Java & QA Developer**, com foco em qualidade de software e boas práticas de engenharia.
 
+A aplicação gerencia um estoque de cervejas por meio de uma API REST construída com **Spring Boot**. Ela permite criar, listar, buscar e excluir registros, validando regras de negócio como limites de quantidade e unicidade de nome.
 
----
-
-
-**Explicação dos Arquivos**
-
-🔹 Testes (src/test/java)
-- BeerDTOBuilder.java  
-  Classe auxiliar para construir objetos BeerDTO em cenários de teste, evitando repetição de código.
-
-- BeerControllerTest.java  
-  Testa os endpoints expostos pelo BeerController, garantindo que as requisições HTTP retornem os status e dados esperados.
-
-- BeerServiceTest.java  
-  Testa a lógica de negócio implementada em BeerService, validando operações como criação, busca e exclusão de cervejas.
+O objetivo central não é apenas fazer a API funcionar — é **provar que ela funciona corretamente**, mesmo quando o código muda. Para isso, foi construída uma cobertura de testes unitários que valida tanto a camada de controller (HTTP) quanto a camada de serviço (regras de negócio).
 
 ---
 
-🔹 Configuração (src/main/resources)
-- application.properties  
-  Configurações da aplicação, incluindo banco de dados H2 em memória e parâmetros do JPA/Hibernate.
+## 3. Premissas da Análise
 
-- data.sql  
-  Script para popular o banco de dados com registros iniciais de cervejas (ex.: Heineken, Budweiser).
+Para o desenvolvimento dos testes, as seguintes premissas foram adotadas:
 
----
-
-🔹 **Código Principal**(src/main/java/com/santosdevbjj/beerstock)
-- BeerController.java  
-  Controlador REST que expõe os endpoints da API (/api/v1/beers).  
-  Responsável por operações de criação, listagem, consulta por nome e exclusão.
-
-- BeerService.java  
-  Camada de serviço que contém a lógica de negócio da aplicação.  
-  Faz a ponte entre o controlador e o repositório.
-
-- BeerDTO.java  
-  Objeto de transferência de dados (Data Transfer Object).  
-  Usado para trafegar informações entre camadas sem expor diretamente a entidade.
-
-- Beer.java  
-  Entidade JPA que representa a tabela beer no banco de dados.  
-  Contém atributos como id, name, brand, max e quantity.
-
-- BeerstockApplication.java  
-  Classe principal que inicializa a aplicação Spring Boot.
+- Os testes unitários são **isolados**: cada teste valida uma única responsabilidade, sem depender de banco de dados real ou de outros serviços.
+- O banco de dados **H2 em memória** é utilizado para simular o ambiente de persistência durante a execução da aplicação.
+- **Mockito** é usado para isolar dependências externas nos testes de serviço, garantindo que apenas a lógica testada seja avaliada.
+- A cobertura foca nos fluxos **feliz (happy path)** e nos principais **cenários de erro** (recurso não encontrado, limite excedido, duplicidade).
+- Os testes foram escritos seguindo a prática de **TDD**, onde o teste é criado antes da implementação.
 
 ---
 
-🔹 **Arquivos de Configuração do Projeto**
-- pom.xml  
-  Arquivo de configuração do Maven. Define dependências (Spring Boot, JUnit, Mockito, Hamcrest, H2) e plugins de build.
+## 4. Estratégia da Solução
 
-- .gitignore  
-  Lista de arquivos e pastas ignorados pelo Git (ex.: target/, .idea/, .DS_Store, logs).
+A abordagem seguiu uma estrutura em camadas, alinhada à arquitetura da aplicação:
 
----
+**Passo 1 — Entendimento das regras de negócio**
+Antes de escrever qualquer teste, foram mapeadas as operações da API e seus comportamentos esperados: o que deve acontecer ao criar uma cerveja que já existe? O que retornar quando um ID não é encontrado?
 
-🛠️ **Tecnologias Utilizadas**
+**Passo 2 — Construção do BeerDTOBuilder**
+Criação de uma classe auxiliar de testes responsável por construir objetos `BeerDTO` de forma padronizada, evitando repetição de código e garantindo consistência nos cenários de teste.
 
-- Java 17  
-- Spring Boot 3.x  
-- Spring Data JPA  
-- H2 Database (in-memory)  
-- JUnit 5  
-- Mockito  
-- Hamcrest  
-- Maven  
-- Git/GitHub
+**Passo 3 — Testes de Serviço (BeerServiceTest)**
+Validação da lógica de negócio em isolamento, usando mocks para simular o repositório. Cenários cobertos: criação com sucesso, criação de cerveja duplicada, busca por nome, exclusão e incremento de estoque.
+
+**Passo 4 — Testes de Controller (BeerControllerTest)**
+Validação dos endpoints HTTP com MockMvc, verificando status codes, corpo das respostas e comportamento correto diante de entradas inválidas.
+
+**Passo 5 — Execução e análise dos resultados**
+Execução da suíte com `mvn clean test`, análise dos relatórios e ajuste dos casos de teste para garantir cobertura dos fluxos críticos.
 
 ---
 
-💻 **Requisitos de Hardware e Software**
+## 5. Decisões Técnicas
 
-**Hardware**
-- Processador Dual-Core ou superior  
-- 4 GB de RAM (mínimo)  
-- 500 MB de espaço em disco  
+**Por que JUnit 5 e Mockito?**
+JUnit 5 oferece uma API moderna e expressiva para escrita de testes em Java. Mockito é o padrão de mercado para criação de mocks e verificação de interações em testes unitários Java — a combinação é amplamente adotada em projetos Spring Boot.
 
-**Software**
-- Java 17 ou superior  
-- Maven 3.6.3 ou superior  
-- IDE: IntelliJ IDEA, Eclipse ou VS Code  
-- Git instalado  
-- Sistema Operacional: Windows, macOS ou Linux  
+**Por que H2 e não um banco real?**
+O H2 em memória elimina a necessidade de infraestrutura externa para rodar os testes, tornando a suíte rápida, portátil e reproduzível em qualquer ambiente.
 
----
+**Por que TDD?**
+Escrever o teste antes da implementação força o desenvolvedor a pensar no comportamento esperado antes de pensar em como implementá-lo. Isso reduz bugs, melhora o design do código e documenta a intenção de cada funcionalidade.
 
-▶️ **Como Executar o Projeto**
-
-1. Clone o repositório:
-   `bash
-   git clone https://github.com/Santosdevbjj/testUnitValidarApiRest.git
-   `
-
-2. Acesse a pasta do projeto:
-   `bash
-   cd testUnitValidarApiRest
-   `
-
-3. Execute a aplicação:
-   `bash
-   mvn spring-boot:run
-   `
-
-4. Acesse no navegador:
-   `
-   http://localhost:8080/api/v1/beers
-   `
+**O que eu faria diferente hoje?**
+Adicionaria testes de integração com `@SpringBootTest` para validar o fluxo completo da aplicação, e configuraria uma pipeline de CI/CD no GitHub Actions para executar os testes automaticamente a cada push.
 
 ---
 
-🧪 **Como Executar os Testes**
+## 6. Insights do Desenvolvimento
 
-Para rodar a suíte de testes unitários:
+Durante o desenvolvimento, ficou claro que:
 
-`bash
+- **Testar não é opcional** — sem testes, qualquer refatoração vira um risco calculado no escuro.
+- O **BeerDTOBuilder** foi um dos maiores ganhos de produtividade: centralizar a criação de objetos de teste evitou dezenas de linhas duplicadas e tornou os testes muito mais legíveis.
+- O uso de **Hamcrest** como biblioteca de assertivas deixa os testes significativamente mais expressivos do que comparações com `assertEquals` simples.
+- Escrever testes revela **fragilidades no design** que passariam despercebidas na implementação direta — o TDD funcionou como um feedback loop contínuo.
+
+---
+
+## 7. Resultados
+
+Com a suíte de testes implementada, o projeto entrega:
+
+- ✅ Cobertura dos endpoints: `POST`, `GET` (lista e por nome), `DELETE`
+- ✅ Validação de regras de negócio: limite de estoque, unicidade de nome, recurso não encontrado
+- ✅ Testes isolados por camada (controller e serviço)
+- ✅ Base sólida para evolução segura da API — qualquer nova feature pode ser adicionada sem risco de quebrar o que já funciona
+
+---
+
+## 8. Próximos Passos
+
+- [ ] Adicionar testes de integração com `@SpringBootTest` e banco H2
+- [ ] Configurar pipeline de CI no **GitHub Actions** para rodar testes automaticamente a cada pull request
+- [ ] Aumentar cobertura de código com relatórios do **JaCoCo**
+- [ ] Implementar testes de contrato com **Spring Cloud Contract**
+- [ ] Dockerizar a aplicação para facilitar o onboarding de novos colaboradores
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+| Tecnologia | Finalidade |
+|---|---|
+| Java 17 | Linguagem principal |
+| Spring Boot 3.x | Framework da aplicação |
+| Spring Data JPA | Persistência de dados |
+| H2 Database | Banco em memória para testes |
+| JUnit 5 | Framework de testes unitários |
+| Mockito | Criação de mocks e verificação de comportamento |
+| Hamcrest | Assertivas expressivas nos testes |
+| Maven | Gerenciamento de dependências e build |
+| Git / GitHub | Versionamento e hospedagem do código |
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+src/
+├── main/
+│   ├── java/com/santosdevbjj/beerstock/
+│   │   ├── BeerController.java       # Endpoints REST (/api/v1/beers)
+│   │   ├── BeerService.java          # Lógica de negócio
+│   │   ├── BeerDTO.java              # Objeto de transferência de dados
+│   │   ├── Beer.java                 # Entidade JPA (tabela beer)
+│   │   └── BeerstockApplication.java # Inicialização do Spring Boot
+│   └── resources/
+│       ├── application.properties    # Configurações (H2, JPA)
+│       └── data.sql                  # Dados iniciais (Heineken, Budweiser)
+└── test/
+    └── java/
+        ├── BeerDTOBuilder.java       # Builder auxiliar para cenários de teste
+        ├── BeerControllerTest.java   # Testes dos endpoints HTTP
+        └── BeerServiceTest.java      # Testes da lógica de negócio
+```
+
+---
+
+## ▶️ Como Executar o Projeto
+
+**Pré-requisitos:** Java 17+, Maven 3.6.3+, Git
+
+```bash
+# Clone o repositório
+git clone https://github.com/Santosdevbjj/testUnitValidarApiRest.git
+
+# Acesse a pasta
+cd testUnitValidarApiRest
+
+# Execute a aplicação
+mvn spring-boot:run
+```
+
+A API estará disponível em: `http://localhost:8080/api/v1/beers`
+
+Para visualizar o banco H2: `http://localhost:8080/h2-console`
+- JDBC URL: `jdbc:h2:mem:beerstockdb`
+- Usuário: `sa` | Senha: *(vazio)*
+
+---
+
+## 🧪 Como Executar os Testes
+
+```bash
 mvn clean test
-`
+```
 
 ---
 
-📚 **Referências**
+## 📡 Endpoints da API
 
-- Spring Boot  
-- JUnit 5  
-- Mockito  
-- Hamcrest  
-- Pirâmide de Testes - Martin Fowler  
-- RESTful API  
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/v1/beers` | Criar uma nova cerveja |
+| `GET` | `/api/v1/beers` | Listar todas as cervejas |
+| `GET` | `/api/v1/beers/{name}` | Buscar cerveja por nome |
+| `DELETE` | `/api/v1/beers/{id}` | Excluir cerveja por ID |
 
----
-
-
-
-**Exemplos de Requisições HTTP**
-
-**A API expõe os seguintes endpoints principais:**
-
-- POST /api/v1/beers → Criar uma nova cerveja  
-- GET /api/v1/beers → Listar todas as cervejas  
-- GET /api/v1/beers/{name} → Buscar cerveja por nome  
-- DELETE /api/v1/beers/{id} → Excluir cerveja por ID  
-
----
-
-🔹 **Criar uma nova cerveja**
-
-cURL
-`bash
+**Exemplo — Criar cerveja:**
+```bash
 curl -X POST http://localhost:8080/api/v1/beers \
   -H "Content-Type: application/json" \
-  -d '{
-    "name": "Corona",
-    "brand": "Grupo Modelo",
-    "max": 80,
-    "quantity": 15
-  }'
-`
+  -d '{"name": "Corona", "brand": "Grupo Modelo", "max": 80, "quantity": 15}'
+```
 
-Postman
-- Método: POST  
-- URL: http://localhost:8080/api/v1/beers  
-- Body → Raw → JSON:
-`json
-{
-  "name": "Corona",
-  "brand": "Grupo Modelo",
-  "max": 80,
-  "quantity": 15
-}
-`
+**Resposta esperada (`201 Created`):**
+```json
+{ "id": 3, "name": "Corona", "brand": "Grupo Modelo", "max": 80, "quantity": 15 }
+```
+
+**Exemplo — Recurso não encontrado (`404 Not Found`):**
+```json
+{ "error": "Beer not found" }
+```
 
 ---
 
-🔹 **Listar todas as cervejas**
+## 💻 Requisitos de Hardware e Software
 
-cURL
-`bash
-curl -X GET http://localhost:8080/api/v1/beers
-`
-
-Postman
-- Método: GET  
-- URL: http://localhost:8080/api/v1/beers
+**Software:** Java 17+, Maven 3.6.3+, Git, IDE de sua preferência (IntelliJ IDEA, Eclipse ou VS Code)  
+**Hardware:** Processador Dual-Core, 4 GB RAM (mínimo), 500 MB de espaço em disco
 
 ---
 
-🔹 **Buscar cerveja por nome**
+## 📚 Referências
 
-cURL
-`bash
-curl -X GET http://localhost:8080/api/v1/beers/Heineken
-`
-
-Postman
-- Método: GET  
-- URL: http://localhost:8080/api/v1/beers/Heineken
+- [Spring Boot Documentation](https://docs.spring.io/spring-boot/)
+- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+- [Mockito Documentation](https://site.mockito.org/)
+- [Pirâmide de Testes — Martin Fowler](https://martinfowler.com/articles/practical-test-pyramid.html)
 
 ---
 
-🔹 **Excluir cerveja por ID**
+## Autor
 
-cURL
-`bash
-curl -X DELETE http://localhost:8080/api/v1/beers/1
-`
+**Sergio Santos**
 
-Postman
-- Método: DELETE  
-- URL: http://localhost:8080/api/v1/beers/1
-
----
-
-**Dicas para Testes**
-
-- O banco de dados H2 em memória é inicializado a cada execução, populado com os dados do arquivo data.sql.  
-- Para visualizar o banco, acesse:
-  `
-  http://localhost:8080/h2-console
-  `
-  - JDBC URL: jdbc:h2:mem:beerstockdb  
-  - Usuário: sa  
-  - Senha: (vazio)  
-
----
-
-
-**Exemplos de Requisições HTTP + Respostas Esperadas**
-
-**A API expõe os seguintes endpoints principais:**
-
-- POST /api/v1/beers → Criar uma nova cerveja  
-- GET /api/v1/beers → Listar todas as cervejas  
-- GET /api/v1/beers/{name} → Buscar cerveja por nome  
-- DELETE /api/v1/beers/{id} → Excluir cerveja por ID  
-
----
-
-🔹 **Criar uma nova cerveja**
-
-Requisição (cURL)
-`bash
-curl -X POST http://localhost:8080/api/v1/beers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Corona",
-    "brand": "Grupo Modelo",
-    "max": 80,
-    "quantity": 15
-  }'
-`
-
-**Resposta esperada (JSON)**
-`json
-{
-  "id": 3,
-  "name": "Corona",
-  "brand": "Grupo Modelo",
-  "max": 80,
-  "quantity": 15
-}
-`
-
----
-
-🔹 **Listar todas as cervejas**
-
-Requisição (cURL)
-`bash
-curl -X GET http://localhost:8080/api/v1/beers
-`
-
-**Resposta esperada (JSON)**
-`json
-[
-  {
-    "id": 1,
-    "name": "Heineken",
-    "brand": "Heineken",
-    "max": 50,
-    "quantity": 10
-  },
-  {
-    "id": 2,
-    "name": "Budweiser",
-    "brand": "ABInBev",
-    "max": 100,
-    "quantity": 20
-  },
-  {
-    "id": 3,
-    "name": "Corona",
-    "brand": "Grupo Modelo",
-    "max": 80,
-    "quantity": 15
-  }
-]
-`
-
----
-
-🔹 **Buscar cerveja por nome**
-
-Requisição (cURL)
-`bash
-curl -X GET http://localhost:8080/api/v1/beers/Heineken
-`
-
-**Resposta esperada (JSON)**
-`json
-{
-  "id": 1,
-  "name": "Heineken",
-  "brand": "Heineken",
-  "max": 50,
-  "quantity": 10
-}
-`
-
----
-
-🔹 **Excluir cerveja por ID**
-
-Requisição (cURL)
-`bash
-curl -X DELETE http://localhost:8080/api/v1/beers/1
-`
-
-Resposta esperada (JSON)  
-A exclusão não retorna corpo, apenas HTTP Status 204 (No Content):
-`http
-HTTP/1.1 204 No Content
-`
-
----
-
- **Observações Importantes**
-
-- O banco de dados H2 em memória é reiniciado a cada execução, populado com os dados do arquivo data.sql.  
-- IDs são gerados automaticamente ao criar novas cervejas.  
-- Caso o nome ou ID não seja encontrado, a API retorna HTTP Status 404 (Not Found) com uma mensagem de erro:
-`json
-{
-  "error": "Beer not found"
-}
-`
-
----
-
-**Postman Collection (JSON Exportável)**
-
-
-**Como Importar no Postman**
-
-1. Abra o Postman.  
-2. Clique em Import (canto superior esquerdo).  
-3. Selecione o arquivo Beerstock.postman_collection.json.  
-4. A coleção aparecerá na sua sidebar com o nome Beerstock API.  
-5. Agora você pode executar cada requisição diretamente e validar os endpoints.
-
----
-
- Com isso, você tem uma coleção pronta para rodar todos os testes da API sem precisar configurar manualmente cada requisição.  
-
----
-
-**Postman Environment (JSON Exportável)**
-
-
-**Como Importar no Postman**
-
-1. Abra o Postman.  
-2. Clique em Import (canto superior esquerdo).  
-3. Selecione o arquivo Beerstock.postman_environment.json.  
-4. Ative o ambiente Beerstock Environment no canto superior direito.  
-5. Agora todas as requisições da coleção podem usar variáveis como:  
-   - {{baseUrl}}/beers  
-   - {{baseUrl}}/beers/{{beerName}}  
-   - {{baseUrl}}/beers/{{beerId}}
-
----
-
-🔹 **Exemplos com Variáveis**
-
-- Criar cerveja:
-  `
-  POST {{baseUrl}}/beers
-  `
-
-- Listar cervejas:
-  `
-  GET {{baseUrl}}/beers
-  `
-
-- Buscar por nome:
-  `
-  GET {{baseUrl}}/beers/{{beerName}}
-  `
-
-- Excluir por ID:
-  `
-  DELETE {{baseUrl}}/beers/{{beerId}}
-  `
-
----
-
-   Com esse ambiente configurado, você pode trocar o baseUrl (por exemplo, para um servidor remoto ou porta diferente) sem precisar alterar cada requisição manualmente.  
-
-
-
----
-
-**Postman Collection + Environment Integrado**
-
-
-**Como Usar**
-
-1. Salve o arquivo como Beerstock.postman_collection.json.  
-2. Abra o Postman.  
-3. Clique em Import e selecione o arquivo.  
-4. A coleção aparecerá com o nome Beerstock API.  
-5. As variáveis já estão embutidas, então você pode rodar os endpoints diretamente usando:  
-   - {{baseUrl}}/beers  
-   - {{baseUrl}}/beers/{{beerName}}  
-   - {{baseUrl}}/beers/{{beerId}}
-
----
-
- 
-
-**Autor:**
-Sergio Santos 
-
----
-
-**Contato:**
-
-
-[![Portfólio Sérgio Santos](https://img.shields.io/badge/Portfólio-Sérgio_Santos-111827?style=for-the-badge&logo=githubpages&logoColor=00eaff)](https://portfoliosantossergio.vercel.app)
-
-[![LinkedIn Sérgio Santos](https://img.shields.io/badge/LinkedIn-Sérgio_Santos-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/santossergioluiz)
-
-
----
-
+[![Portfólio](https://img.shields.io/badge/Portfólio-Sérgio_Santos-111827?style=for-the-badge&logo=githubpages&logoColor=00eaff)](https://portfoliosantossergio.vercel.app)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Sérgio_Santos-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/santossergioluiz)
